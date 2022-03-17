@@ -1,7 +1,7 @@
 # PRTG-Duplicate-Device-Finder
 
 ## Summary
-This script will count the number of alerts found in Opsgenie the week before. 
+This script will count the total number of alerts found in Opsgenie the week before. Optionally, counts of alerts during specific timeframes during last week can also be appended to the report. Desired alerts can be specified with tags relating to relevant alerts. 
 It will then email a report of these numbers.
 
 _Note: If you have any questions or comments you can always use GitHub
@@ -14,23 +14,23 @@ the environment and related alerts to give a better picture on what types of
 alerts are being generated and why.
 
 ## Requirements
-- Python >= 3.9.5
-- configparser >= 5.0.2
-- pytz >= 2019.3
-- requests >= 2.25.1
+- Python >= 3.10.2
+- configparser >= 5.2.0
+- pytz >= 2021.3
+- requests >= 2.27.1
 
 ## Usage
 - Use any additional desired features in the Opsgenie API.
     - Reference to the Opsgenie API: https://docs.opsgenie.com/docs/api-overview
 
-- Edit the config files with relevant Opsgenie / email access information.
+- Edit the config file with relevant Opsgenie, email, timeframe, and timezone information.
 
 - Simply run the script using Python:
   `python Opsgenie-Alerts-Reporter.py`
 
 ## Compatibility
 Should be able to run on any machine with a Python interpreter. This script
-was only tested on a Windows machine running Python 3.9.5.
+was only tested on a Windows machine running Python 3.10.2.
 
 ## Disclaimer
 The code provided in this project is an open source example and should not
@@ -46,31 +46,16 @@ encounter any problems, please log an
 5. Submit a pull request ツ
 
 ## History
--  version 1.0.0 - 2021/11/30
+- version 2.0.0 - 2022/3/17
+    - Added timeframe feature
+    - Added ability to specify tags for Opsgenie alerts
+    - Added customizable email configurations
+    - Updated to Python 3.10
+    - Updated relevant packages
+    - Cleaned / refactored code
+
+- version 1.0.0 - 2021/11/30
     - (initial release)
 
 ## Credits
 Anthony Farina <<farinaanthony96@gmail.com>>
-
-## License
-MIT License
-
-Copyright (c) [2021] [Anthony G. Farina]
-
-Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the "Software"),
-to deal in the Software without restriction, including without limitation
-the rights to use, copy, modify, merge, publish, distribute, sublicense,
-and/or sell copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
