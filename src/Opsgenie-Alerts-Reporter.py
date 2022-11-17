@@ -1,10 +1,10 @@
-import math
-import os
+import configparser
 import datetime
 from datetime import datetime as dt
 from datetime import timedelta
+import math
+import os
 
-import configparser
 import pytz
 import requests
 
@@ -16,7 +16,7 @@ __credits__ = ['Anthony Farina']
 __maintainer__ = 'Anthony Farina'
 __email__ = 'farinaanthony96@gmail.com'
 __license__ = 'MIT'
-__version__ = '2.0.0'
+__version__ = '2.0.1'
 __status__ = 'Released'
 
 
