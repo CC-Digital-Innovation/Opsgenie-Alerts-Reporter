@@ -1,73 +1,78 @@
-import configparser
+import math
+import os
 import datetime
 from datetime import datetime as dt
 from datetime import timedelta
-import math
-import os
 
+import configparser
 import pytz
 import requests
 
 
 # Module information.
 __author__ = 'Anthony Farina'
-__copyright__ = 'Copyright (c) 2022 Computacenter Digital Innovation'
+__copyright__ = 'Copyright (c) 2023 Computacenter Digital Innovation'
 __credits__ = ['Anthony Farina']
 __maintainer__ = 'Anthony Farina'
 __email__ = 'farinaanthony96@gmail.com'
 __license__ = 'MIT'
-__version__ = '2.0.1'
+__version__ = '2.0.2'
 __status__ = 'Released'
 
 
-# Global config file variables for easy referencing.
+# Global constant config file variables for easy referencing.
 CONFIG = configparser.ConfigParser()
 CONFIG_PATH = '/../configs/Opsgenie-Alerts-Reporter-config.ini'
 CONFIG.read(os.path.dirname(os.path.realpath(__file__)) + CONFIG_PATH)
 
-# Email API global variables.
+# Email API global constant variables.
 EMAIL_API_TOKEN = CONFIG['Email Info']['api-token']
-EMAIL_API_BASE_URL = 'https://k3s.quokka.ninja/email-api'
-EMAIL_API_EMAIL = '/emailReport/'
+EMAIL_API_BASE_URL = CONFIG['Email Info']['api-base-url']
+EMAIL_API_EMAIL = CONFIG['Email Info']['api-email-endpoint']
 EMAIL_SUBJECT = CONFIG['Email Info']['subject']
-EMAIL_SENDER = 'noreply@quokka.one'
 EMAIL_TO = CONFIG['Email Info']['to']
 EMAIL_CC = CONFIG['Email Info']['cc']
 EMAIL_BCC = CONFIG['Email Info']['bcc']
 
-# Opsgenie global variables.
-OG_API_URL = 'https://api.opsgenie.com/v2/'
-OG_TIMEZONE = 'UTC'
-OG_API_KEY = CONFIG['Opsgenie Info']['API-Key']
+# Opsgenie global constant variables.
+OG_API_URL = CONFIG['Opsgenie Info']['api-base-url']
+OG_TIMEZONE = CONFIG['Opsgenie Info']['opsgenie-timezone']
+OG_API_KEY = CONFIG['Opsgenie Info']['api-key']
 OG_ALERT_TAGS = CONFIG['Opsgenie Info']['alert-tags'].split(',')
 
-# Timeframe global variables.
+# Timeframe global constant variables.
 USE_TIMEFRAMES = CONFIG['Timeframes'].getboolean('use-timeframes')
 TIMEZONE = CONFIG['Timezone']['timezone']
+
 # Check if the timeframe feature is being used.
 if USE_TIMEFRAMES:
     # Represent days of the week in the timeframes as a list of ints.
     DAYS_OF_WEEK = \
         [int(i) for i in CONFIG['Timeframes']['days-of-week'].split(',')]
+
     # Get the start of the timeframe.
     START_HOUR = CONFIG['Timeframes'].getint('start-hour')
     START_MINUTE = CONFIG['Timeframes'].getint('start-minute')
     START_TIME = datetime.time(hour=START_HOUR, minute=START_MINUTE,
                                tzinfo=pytz.timezone(TIMEZONE))
+
     # Get the end of the timeframe.
     END_HOUR = CONFIG['Timeframes'].getint('end-hour')
     END_MINUTE = CONFIG['Timeframes'].getint('end-minute')
     END_TIME = datetime.time(hour=END_HOUR, minute=END_MINUTE,
                              tzinfo=pytz.timezone(TIMEZONE))
 
+# Format for the date / time in the email body (global constant variable).
+EMAIL_TIME_FORMAT = '%m/%d/%Y %H:%M:%S %Z'
 
-# This function will gather the total amount of Opsgenie alerts (with
-# specific tags) from last Sunday at 00:00 to last Saturday at
-# 23:59:59 (relative to when this script runs). On top of that data,
-# the user may also enable the timeframe feature to get alerts that
-# happened in specific time frames on certain days that same week.
-# This report may then be emailed to configurable recipients.
+
 def opsgenie_alerts_reporter() -> None:
+    """This function will gather the total amount of Opsgenie alerts (with
+    specific tags) from last Sunday at 00:00 to last Saturday at 23:59:59
+    (relative to when this script runs). On top of that data, the user may
+    also enable the timeframe feature to get alerts that happened in specific
+    time frames on certain days that same week. This report may then be
+    emailed to configurable recipients."""
     # Create variable to hold the report string.
     report_str = 'Hello!\n\n'
 
@@ -75,8 +80,8 @@ def opsgenie_alerts_reporter() -> None:
     # the report.
     now_dt = dt.utcnow().replace(tzinfo=pytz.UTC).astimezone(
         pytz.timezone(TIMEZONE))
-    report_str += 'Today is: ' + dt.strftime(now_dt, '%m/%d/%Y %H:%M:%S %Z') \
-                  + '\n'
+    report_str += f'Today is:          ' \
+                  f'{dt.strftime(now_dt, EMAIL_TIME_FORMAT)}\n'
 
     # Get the beginning of last week (Sunday at 00:00) and include it
     # in the report.
@@ -86,9 +91,8 @@ def opsgenie_alerts_reporter() -> None:
                             month=sun_last_week_dt.month,
                             day=sun_last_week_dt.day,
                             hour=0, minute=0, second=0, tzinfo=now_dt.tzinfo)
-    report_str += 'Last week\'s start: ' + \
-                  dt.strftime(start_last_week_dt, '%m/%d/%Y %H:%M:%S %Z') + \
-                  '\n'
+    report_str += f'Last week\'s start: ' \
+                  f'{dt.strftime(start_last_week_dt, EMAIL_TIME_FORMAT)}\n'
 
     # Make a timestamp for the beginning of last week for the Opsgenie
     # query.
@@ -96,22 +100,21 @@ def opsgenie_alerts_reporter() -> None:
 
     # Get the end of last week (Saturday at 23:59) and include it in
     # the report.
-    end_last_week_dt = start_last_week_dt + \
-        timedelta(days=6, hours=23, minutes=59, seconds=59)
-    report_str += 'Last week\'s end:   ' + \
-                  dt.strftime(end_last_week_dt, '%m/%d/%Y %H:%M:%S %Z') + \
-                  '\n\n'
+    end_last_week_dt = start_last_week_dt + timedelta(days=6, hours=23,
+                                                      minutes=59, seconds=59)
+    report_str += f'Last week\'s end:   ' \
+                  f'{dt.strftime(end_last_week_dt, EMAIL_TIME_FORMAT)}\n\n'
 
     # Make a timestamp for the end of last week for the Opsgenie query.
     end_utc_timestamp = math.floor(dt.timestamp(end_last_week_dt) * 1000)
 
     # Initialize the query string with timestamp information.
-    og_query_str = 'createdAt>= ' + str(start_utc_timestamp) + \
-                   ' AND createdAt<= ' + str(end_utc_timestamp)
+    og_query_str = f'createdAt>= {start_utc_timestamp} AND createdAt<= ' \
+                   f'{end_utc_timestamp}'
 
     # Append all tags to look for in alerts to the query string.
     for tag in OG_ALERT_TAGS:
-        og_query_str += ' AND tag: ' + tag
+        og_query_str += f' AND tag: {tag}'
 
     # Send the API call to OpsGenie.
     og_api_resp = requests.get(url=OG_API_URL + 'alerts',
@@ -150,15 +153,14 @@ def opsgenie_alerts_reporter() -> None:
                 # Convert the time to the report's timezone.
                 alert_time_dt = (alert_time_dt.replace(
                     tzinfo=pytz.timezone(OG_TIMEZONE)).
-                    astimezone(pytz.timezone(TIMEZONE)))
+                                 astimezone(pytz.timezone(TIMEZONE)))
 
-                # Check if this alert is not in a configured timeframe.
+                # Check if this alert is not in the configured timeframe.
                 in_timeframe = (
                         (START_TIME <= alert_time_dt.time() <= END_TIME)
                         and
                         (alert_time_dt.weekday() in DAYS_OF_WEEK)
                 )
-
                 if not in_timeframe:
                     # Move onto the next alert.
                     continue
@@ -176,26 +178,23 @@ def opsgenie_alerts_reporter() -> None:
             og_alerts_batch = og_api_resp.json()
 
     # Output the alert data to the report string.
-    report_str += 'Total alerts:   ' + str(len(all_og_alerts_list))
+    report_str += f'Total alerts:   {len(all_og_alerts_list)}'
 
     # Check if we need to include the timeframe numbers in the report.
     if USE_TIMEFRAMES:
-        report_str += '\nWorkday alerts: ' + str(len(timeframe_og_alerts_list))
+        report_str += f'\nWorkday alerts: {len(timeframe_og_alerts_list)}'
 
-    # Run the email script to send the alert data from the report
-    # string.
+    # Use the email API to send the report.
     print(report_str)
     email_api_resp = requests.post(url=EMAIL_API_BASE_URL + EMAIL_API_EMAIL,
+                                   headers={'API_KEY': EMAIL_API_TOKEN},
                                    data={
-                                       'Token': EMAIL_API_TOKEN,
-                                       'ID': 0,
-                                       'sender': EMAIL_SENDER,
                                        'subject': EMAIL_SUBJECT,
                                        'to': EMAIL_TO,
                                        'cc': EMAIL_CC,
                                        'bcc': EMAIL_BCC,
                                        'body': report_str,
-                                       })
+                                   })
     print(email_api_resp.status_code)
     print(email_api_resp.text)
 

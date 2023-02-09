@@ -14,15 +14,12 @@ the environment and related alerts to give a better picture on what types of
 alerts are being generated and why.
 
 ## Requirements
-- Python >= 3.10.2
-- configparser >= 5.2.0
-- pytz >= 2021.3
-- requests >= 2.27.1
+- Python 3.11+
+- configparser
+- pytz
+- requests
 
 ## Usage
-- Use any additional desired features in the Opsgenie API.
-    - Reference to the Opsgenie API: https://docs.opsgenie.com/docs/api-overview
-
 - Edit the config file with relevant Opsgenie, email, timeframe, and timezone information.
 
 - Simply run the script using Python:
@@ -30,7 +27,7 @@ alerts are being generated and why.
 
 ## Compatibility
 Should be able to run on any machine with a Python interpreter. This script
-was only tested on a Windows machine running Python 3.10.2.
+was only tested on a Windows machine running Python 3.11.
 
 ## Disclaimer
 The code provided in this project is an open source example and should not
@@ -46,6 +43,17 @@ encounter any problems, please log an
 5. Submit a pull request ツ
 
 ## History
+- version 2.0.2 - 2023/2/9
+    - Moved over some global constants to the config file
+    - Incorporated f-strings for increased readability
+    - Updated Email API call with a new required header
+    - Use Python docstrings
+    - Update config file
+    - Updated to Python 3.11
+
+- version 2.0.1 - 2022/11/17
+    - Rearranged libraries
+
 - version 2.0.0 - 2022/3/17
     - Added timeframe feature
     - Added ability to specify tags for Opsgenie alerts
