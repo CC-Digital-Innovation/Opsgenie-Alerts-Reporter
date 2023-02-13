@@ -43,6 +43,11 @@ encounter any problems, please log an
 5. Submit a pull request ツ
 
 ## History
+- version 2.0.3 - 2023/2/10
+    - Moved sensitive configuration values to environment variable file
+    - Preparing to use Vault in Kubernetes
+    - Preparing the script to be run from Kubernetes
+
 - version 2.0.2 - 2023/2/9
     - Moved over some global constants to the config file
     - Incorporated f-strings for increased readability

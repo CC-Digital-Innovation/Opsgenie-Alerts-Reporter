@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: opsgenie-alerts-reporter
+  namespace: default
+spec:
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            vault.hashicorp.com/agent-inject: 'true'
+            vault.hashicorp.com/role: 'opsgenie_alerts_reporter'
+            vault.hashicorp.com/agent-inject-secret-opsgenie: 'secret/opsgenie'
+            vault.hashicorp.com/agent-inject-template-opsgenie: |
+              {{- with secret "secret/opsgenie" -}}
+                export OG_API_KEY="{{ .Data.data.api_key }}"
+                export OG_API_BASE_URL="{{ .Data.data.api_base_url }}"
+              {{- end }}
+            vault.hashicorp.com/agent-inject-secret-email: 'secret/emailapi'
+            vault.hashicorp.com/agent-inject-template-email: |
+              {{- with secret "secret/emailapi" -}}
+                export EMAIL_API_TOKEN="{{ .Data.data.Email_API_KEY }}"
+                export EMAIL_API_BASE_URL="{{ .Data.data.api_base_url }}"
+                export EMAIL_API_ENDPOINT="{{ .Data.data.email_api_endpoint }}"
+              {{- end }}
+            vault.hashicorp.com/agent-inject-secret-v: 'secret/v/opsgenie_alerts_reporter'
+            vault.hashicorp.com/agent-inject-template-v: |
+              {{- with secret "secret/v/opsgenie_alerts_reporter" -}}
+                export OG_ALERT_TAGS="{{ .Data.data.og_alert_tags }}"
+                export OG_TIMEZONE="{{ .Data.data.og_timezone }}"
+                export EMAIL_SUBJECT="{{ .Data.data.email_subject }}"
+                export EMAIL_TO="{{ .Data.data.email_to }}"
+                export EMAIL_CC="{{ .Data.data.email_cc }}"
+                export EMAIL_BCC="{{ .Data.data.email_bcc }}"
+              {{- end }}
+            vault.hashicorp.com/ca-cert: /run/secrets/kubernetes.io/serviceaccount/ca.crt
+        spec:
+          containers:
+            image: registry.quokka.ninja/ccfs/opsgenie-alerts-reporter:latest
+            imagePullPolicy: Always
+            name: opsgenie-alerts-reporter
+            args: ['/bin/bash', '-c', 'source /vault/secrets/opsgenie && source /vault/secrets/email && source /vault/secrets/v && python ./src/Opsgenie-Alerts-Reporter.py']
+          imagePullSecrets:
+            - name: gitlab-cr
+          restartPolicy: Never
+          serviceAccountName: opsgenie-alerts-reporter
+      backoffLimit: 3
+  schedule: 0 14 * * 0

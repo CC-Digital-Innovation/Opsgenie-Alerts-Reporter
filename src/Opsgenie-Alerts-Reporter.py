@@ -5,6 +5,7 @@ from datetime import datetime as dt
 from datetime import timedelta
 
 import configparser
+import dotenv
 import pytz
 import requests
 
@@ -16,29 +17,33 @@ __credits__ = ['Anthony Farina']
 __maintainer__ = 'Anthony Farina'
 __email__ = 'farinaanthony96@gmail.com'
 __license__ = 'MIT'
-__version__ = '2.0.2'
+__version__ = '2.0.3'
 __status__ = 'Released'
 
 
-# Global constant config file variables for easy referencing.
+# Set up the extraction of global constants from the environment variable file.
+dotenv.load_dotenv('./../.env')
+
+# Set up the extraction of global constants from the config file.
 CONFIG = configparser.ConfigParser()
 CONFIG_PATH = '/../configs/Opsgenie-Alerts-Reporter-config.ini'
 CONFIG.read(os.path.dirname(os.path.realpath(__file__)) + CONFIG_PATH)
 
-# Email API global constant variables.
-EMAIL_API_TOKEN = CONFIG['Email Info']['api-token']
-EMAIL_API_BASE_URL = CONFIG['Email Info']['api-base-url']
-EMAIL_API_EMAIL = CONFIG['Email Info']['api-email-endpoint']
-EMAIL_SUBJECT = CONFIG['Email Info']['subject']
-EMAIL_TO = CONFIG['Email Info']['to']
-EMAIL_CC = CONFIG['Email Info']['cc']
-EMAIL_BCC = CONFIG['Email Info']['bcc']
+# Email global constants.
+EMAIL_API_BASE_URL = os.getenv('EMAIL_API_BASE_URL')
+EMAIL_API_ENDPOINT = os.getenv('EMAIL_API_ENDPOINT')
+EMAIL_API_TOKEN = os.getenv('EMAIL_API_TOKEN')
+EMAIL_SUBJECT = os.getenv('EMAIL_SUBJECT')
+EMAIL_TO = os.getenv('EMAIL_TO')
+EMAIL_CC = os.getenv('EMAIL_CC')
+EMAIL_BCC = os.getenv('EMAIL_BCC')
+EMAIL_TIME_FORMAT = CONFIG['Email']['time-format']
 
 # Opsgenie global constant variables.
-OG_API_URL = CONFIG['Opsgenie Info']['api-base-url']
-OG_TIMEZONE = CONFIG['Opsgenie Info']['opsgenie-timezone']
-OG_API_KEY = CONFIG['Opsgenie Info']['api-key']
-OG_ALERT_TAGS = CONFIG['Opsgenie Info']['alert-tags'].split(',')
+OG_API_BASE_URL = os.getenv('OG_API_BASE_URL')
+OG_API_KEY = os.getenv('OG_API_KEY')
+OG_ALERT_TAGS = os.getenv('OG_ALERT_TAGS').split(',')
+OG_TIMEZONE = os.getenv('OG_TIMEZONE')
 
 # Timeframe global constant variables.
 USE_TIMEFRAMES = CONFIG['Timeframes'].getboolean('use-timeframes')
@@ -61,9 +66,6 @@ if USE_TIMEFRAMES:
     END_MINUTE = CONFIG['Timeframes'].getint('end-minute')
     END_TIME = datetime.time(hour=END_HOUR, minute=END_MINUTE,
                              tzinfo=pytz.timezone(TIMEZONE))
-
-# Format for the date / time in the email body (global constant variable).
-EMAIL_TIME_FORMAT = '%m/%d/%Y %H:%M:%S %Z'
 
 
 def opsgenie_alerts_reporter() -> None:
@@ -117,7 +119,7 @@ def opsgenie_alerts_reporter() -> None:
         og_query_str += f' AND tag: {tag}'
 
     # Send the API call to OpsGenie.
-    og_api_resp = requests.get(url=OG_API_URL + 'alerts',
+    og_api_resp = requests.get(url=OG_API_BASE_URL + 'alerts',
                                params={'query': og_query_str,
                                        'limit': '100'},
                                headers={'Authorization': OG_API_KEY}
@@ -186,7 +188,7 @@ def opsgenie_alerts_reporter() -> None:
 
     # Use the email API to send the report.
     print(report_str)
-    email_api_resp = requests.post(url=EMAIL_API_BASE_URL + EMAIL_API_EMAIL,
+    email_api_resp = requests.post(url=EMAIL_API_BASE_URL + EMAIL_API_ENDPOINT,
                                    headers={'API_KEY': EMAIL_API_TOKEN},
                                    data={
                                        'subject': EMAIL_SUBJECT,

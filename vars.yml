@@ -1,0 +1,6 @@
+repo: https://github.com/CC-Digital-Innovation/Opsgenie-Alerts-Reporter.git
+ssh_url: git@github.com:CC-Digital-Innovation/Opsgenie-Alerts-Reporter.git
+branch: main
+image: opsgenie-alerts-reporter
+manifest_path: Opsgenie-Alerts-Reporter-cronjob.yml
+pipeline: opsgenie-alerts-reporter
