@@ -14,8 +14,12 @@ spec:
             vault.hashicorp.com/agent-inject-secret-opsgenie: 'secret/opsgenie'
             vault.hashicorp.com/agent-inject-template-opsgenie: |
               {{- with secret "secret/opsgenie" -}}
-                export OG_API_KEY="{{ .Data.data.api_key }}"
-                export OG_API_BASE_URL="{{ .Data.data.api_base_url }}"
+                export OG_API_ALERTS_URL="{{ .Data.data.api_alerts_url }}"
+              {{- end }}
+            vault.hashicorp.com/agent-inject-secret-v-opsgenie: 'secret/v/opsgenie'
+            vault.hashicorp.com/agent-inject-template-v-opsgenie: |
+              {{- with secret "secret/v/opsgenie" -}}
+                export OG_API_KEY="{{ .Data.data.api_token }}"
               {{- end }}
             vault.hashicorp.com/agent-inject-secret-email: 'secret/emailapi'
             vault.hashicorp.com/agent-inject-template-email: |
@@ -40,7 +44,7 @@ spec:
             - image: registry.quokka.ninja/ccfs/opsgenie-alerts-reporter:0.0.1
               imagePullPolicy: Always
               name: opsgenie-alerts-reporter
-              args: ['/bin/bash', '-c', 'source /vault/secrets/opsgenie && source /vault/secrets/email && source /vault/secrets/v && python ./src/Opsgenie-Alerts-Reporter.py']
+              args: ['/bin/bash', '-c', 'source /vault/secrets/opsgenie && source /vault/secrets/v-opsgenie && source /vault/secrets/email && source /vault/secrets/v && python ./src/Opsgenie-Alerts-Reporter.py']
           imagePullSecrets:
             - name: gitlab-cr
           restartPolicy: Never

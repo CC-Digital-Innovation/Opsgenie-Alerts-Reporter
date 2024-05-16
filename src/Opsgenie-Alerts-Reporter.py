@@ -12,12 +12,12 @@ import requests
 
 # Module information.
 __author__ = 'Anthony Farina'
-__copyright__ = 'Copyright (c) 2023 Computacenter Digital Innovation'
+__copyright__ = 'Copyright (c) 2024 Computacenter Digital Innovation'
 __credits__ = ['Anthony Farina']
 __maintainer__ = 'Anthony Farina'
 __email__ = 'farinaanthony96@gmail.com'
 __license__ = 'MIT'
-__version__ = '2.0.3'
+__version__ = '2.0.4'
 __status__ = 'Released'
 
 
@@ -35,12 +35,12 @@ EMAIL_API_ENDPOINT = os.getenv('EMAIL_API_ENDPOINT')
 EMAIL_API_TOKEN = os.getenv('EMAIL_API_TOKEN')
 EMAIL_SUBJECT = os.getenv('EMAIL_SUBJECT')
 EMAIL_TO = os.getenv('EMAIL_TO')
-EMAIL_CC = os.getenv('EMAIL_CC')
-EMAIL_BCC = os.getenv('EMAIL_BCC')
+EMAIL_CC = os.getenv('EMAIL_CC', '')
+EMAIL_BCC = os.getenv('EMAIL_BCC', '')
 EMAIL_TIME_FORMAT = CONFIG['Email']['time-format']
 
 # Opsgenie global constant variables.
-OG_API_BASE_URL = os.getenv('OG_API_BASE_URL')
+OG_API_ALERTS_URL = os.getenv('OG_API_ALERTS_URL')
 OG_API_KEY = os.getenv('OG_API_KEY')
 OG_ALERT_TAGS = os.getenv('OG_ALERT_TAGS').split(',')
 OG_TIMEZONE = os.getenv('OG_TIMEZONE')
@@ -75,6 +75,7 @@ def opsgenie_alerts_reporter() -> None:
     also enable the timeframe feature to get alerts that happened in specific
     time frames on certain days that same week. This report may then be
     emailed to configurable recipients."""
+    
     # Create variable to hold the report string.
     report_str = 'Hello!\n\n'
 
@@ -119,7 +120,7 @@ def opsgenie_alerts_reporter() -> None:
         og_query_str += f' AND tag: {tag}'
 
     # Send the API call to OpsGenie.
-    og_api_resp = requests.get(url=OG_API_BASE_URL + 'alerts',
+    og_api_resp = requests.get(url=OG_API_ALERTS_URL,
                                params={'query': og_query_str,
                                        'limit': '100'},
                                headers={'Authorization': OG_API_KEY}

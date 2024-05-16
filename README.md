@@ -43,12 +43,16 @@ encounter any problems, please log an
 5. Submit a pull request ツ
 
 ## History
-- version 2.0.3 - 2023/2/10
+-  version 2.0.4 - 2024/05/16
+    - Updated Vault secret access in Kubernetes
+
+
+-  version 2.0.3 - 2023/02/10
     - Moved sensitive configuration values to environment variable file
     - Preparing to use Vault in Kubernetes
     - Preparing the script to be run from Kubernetes
 
-- version 2.0.2 - 2023/2/9
+-  version 2.0.2 - 2023/02/09
     - Moved over some global constants to the config file
     - Incorporated f-strings for increased readability
     - Updated Email API call with a new required header
@@ -56,10 +60,10 @@ encounter any problems, please log an
     - Update config file
     - Updated to Python 3.11
 
-- version 2.0.1 - 2022/11/17
+-  version 2.0.1 - 2022/11/17
     - Rearranged libraries
 
-- version 2.0.0 - 2022/3/17
+-  version 2.0.0 - 2022/03/17
     - Added timeframe feature
     - Added ability to specify tags for Opsgenie alerts
     - Added customizable email configurations
@@ -67,7 +71,7 @@ encounter any problems, please log an
     - Updated relevant packages
     - Cleaned / refactored code
 
-- version 1.0.0 - 2021/11/30
+-  version 1.0.0 - 2021/11/30
     - (initial release)
 
 ## Credits
