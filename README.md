@@ -1,4 +1,4 @@
-# PRTG-Duplicate-Device-Finder
+# Opsgenie-Alerts-Reporter
 
 ## Summary
 This script will count the total number of alerts found in Opsgenie the week before. Optionally, counts of alerts during specific timeframes during last week can also be appended to the report. Desired alerts can be specified with tags relating to relevant alerts. 
