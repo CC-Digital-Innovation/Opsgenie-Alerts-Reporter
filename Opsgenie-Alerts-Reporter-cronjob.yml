@@ -10,18 +10,22 @@ spec:
         metadata:
           annotations:
             vault.hashicorp.com/agent-inject: 'true'
+            vault.hashicorp.com/agent-auto-auth-exit-on-err: 'true'
             vault.hashicorp.com/role: 'opsgenie_alerts_reporter'
             vault.hashicorp.com/agent-inject-secret-opsgenie: 'secret/opsgenie'
+            vault.hashicorp.com/error-on-missing-key-opsgenie: 'true'
             vault.hashicorp.com/agent-inject-template-opsgenie: |
               {{- with secret "secret/opsgenie" -}}
                 export OG_API_ALERTS_URL="{{ .Data.data.api_alerts_url }}"
               {{- end }}
             vault.hashicorp.com/agent-inject-secret-v-opsgenie: 'secret/v/opsgenie'
+            vault.hashicorp.com/error-on-missing-key-v-opsgenie: 'true'
             vault.hashicorp.com/agent-inject-template-v-opsgenie: |
               {{- with secret "secret/v/opsgenie" -}}
                 export OG_API_KEY="{{ .Data.data.api_token }}"
               {{- end }}
             vault.hashicorp.com/agent-inject-secret-email: 'secret/emailapi'
+            vault.hashicorp.com/error-on-missing-key-email: 'true'
             vault.hashicorp.com/agent-inject-template-email: |
               {{- with secret "secret/emailapi" -}}
                 export EMAIL_API_TOKEN="{{ .Data.data.Email_API_KEY }}"
@@ -29,6 +33,7 @@ spec:
                 export EMAIL_API_ENDPOINT="{{ .Data.data.email_api_endpoint }}"
               {{- end }}
             vault.hashicorp.com/agent-inject-secret-v: 'secret/v/opsgenie_alerts_reporter'
+            vault.hashicorp.com/error-on-missing-key-v: 'true'
             vault.hashicorp.com/agent-inject-template-v: |
               {{- with secret "secret/v/opsgenie_alerts_reporter" -}}
                 export OG_ALERT_TAGS="{{ .Data.data.og_alert_tags }}"
