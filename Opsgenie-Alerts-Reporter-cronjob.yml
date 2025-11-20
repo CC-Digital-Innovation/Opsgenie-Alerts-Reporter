@@ -41,7 +41,7 @@ spec:
             vault.hashicorp.com/ca-cert: /run/secrets/kubernetes.io/serviceaccount/ca.crt
         spec:
           containers:
-            - image: harbor.k3s.quokka.ninja/library/opsgenie-alerts-reporter:2.0.6
+            - image: registry.quokka.ninja/ccfs/opsgenie-alerts-reporter:2.0.7
               imagePullPolicy: Always
               name: opsgenie-alerts-reporter
               args: ['/bin/bash', '-c', 'source /vault/secrets/opsgenie && source /vault/secrets/v-opsgenie && source /vault/secrets/email && source /vault/secrets/v && python ./src/Opsgenie-Alerts-Reporter.py']
