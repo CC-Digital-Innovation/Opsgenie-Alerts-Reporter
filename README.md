@@ -14,7 +14,7 @@ the environment and related alerts to give a better picture on what types of
 alerts are being generated and why.
 
 ## Requirements
-- Python 3.11+
+- Python 3.12.*
 - configparser
 - pytz
 - requests

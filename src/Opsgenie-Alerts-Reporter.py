@@ -1,8 +1,7 @@
+import datetime
 import math
 import os
-import datetime
-from datetime import datetime as dt
-from datetime import timedelta
+from datetime import datetime as dt, timedelta
 
 import configparser
 import dotenv
@@ -10,19 +9,8 @@ import pytz
 import requests
 
 
-# Module information.
-__author__ = 'Anthony Farina'
-__copyright__ = 'Copyright (c) 2024 Computacenter Digital Innovation'
-__credits__ = ['Anthony Farina']
-__maintainer__ = 'Anthony Farina'
-__email__ = 'farinaanthony96@gmail.com'
-__license__ = 'MIT'
-__version__ = '2.0.4'
-__status__ = 'Released'
-
-
-# Set up the extraction of global constants from the environment variable file.
-dotenv.load_dotenv('./../.env')
+# ====================== Environment / Global Variables =======================
+dotenv.load_dotenv(override=True)
 
 # Set up the extraction of global constants from the config file.
 CONFIG = configparser.ConfigParser()
@@ -68,6 +56,7 @@ if USE_TIMEFRAMES:
                              tzinfo=pytz.timezone(TIMEZONE))
 
 
+# ================================= Functions =================================
 def opsgenie_alerts_reporter() -> None:
     """This function will gather the total amount of Opsgenie alerts (with
     specific tags) from last Sunday at 00:00 to last Saturday at 23:59:59
@@ -81,19 +70,18 @@ def opsgenie_alerts_reporter() -> None:
 
     # Get today's date in the configured timezone and to include in
     # the report.
-    now_dt = dt.utcnow().replace(tzinfo=pytz.UTC).astimezone(
-        pytz.timezone(TIMEZONE))
+    now = dt.now(pytz.UTC).astimezone(pytz.timezone(TIMEZONE))
     report_str += f'Today is:          ' \
-                  f'{dt.strftime(now_dt, EMAIL_TIME_FORMAT)}\n'
+                  f'{dt.strftime(now, EMAIL_TIME_FORMAT)}\n'
 
     # Get the beginning of last week (Sunday at 00:00) and include it
     # in the report.
-    days_to_last_sun_dt = timedelta(((now_dt.weekday() + 1) % 7) + 7)
-    sun_last_week_dt = now_dt - days_to_last_sun_dt
+    days_to_last_sun_dt = timedelta(((now.weekday() + 1) % 7) + 7)
+    sun_last_week_dt = now - days_to_last_sun_dt
     start_last_week_dt = dt(year=sun_last_week_dt.year,
                             month=sun_last_week_dt.month,
                             day=sun_last_week_dt.day,
-                            hour=0, minute=0, second=0, tzinfo=now_dt.tzinfo)
+                            hour=0, minute=0, second=0, tzinfo=now.tzinfo)
     report_str += f'Last week\'s start: ' \
                   f'{dt.strftime(start_last_week_dt, EMAIL_TIME_FORMAT)}\n'
 
@@ -202,7 +190,6 @@ def opsgenie_alerts_reporter() -> None:
     print(email_api_resp.text)
 
 
-# The main method that runs the script. It has no input parameters.
+# ================================ Main Method ================================
 if __name__ == '__main__':
-    # Runs the script.
     opsgenie_alerts_reporter()
