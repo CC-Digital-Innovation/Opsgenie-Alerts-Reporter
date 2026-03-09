@@ -44,6 +44,7 @@ spec:
                 export EMAIL_BCC="{{ .Data.data.email_bcc }}"
               {{- end }}
             vault.hashicorp.com/ca-cert: /run/secrets/kubernetes.io/serviceaccount/ca.crt
+            vault.hashicorp.com/agent-pre-populate-only: 'true'
         spec:
           containers:
             - image: harbor.k3s.quokka.ninja/library/opsgenie-alerts-reporter:2.0.8
