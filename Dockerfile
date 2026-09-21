@@ -40,8 +40,9 @@ RUN rm -rf \
     /usr/local/lib/python3.14/site-packages/pip* \
     /usr/local/lib/python3.14/site-packages/setuptools*
 
-# Copy source code.
-COPY ./src .
+# Copy source code and config files.
+COPY ./src ./src
+COPY ./configs ./configs
 
 # Set non-root user and group to run the app.
 RUN addgroup -S -g 10015 opsgenie_alerts_reporter && \
@@ -49,4 +50,4 @@ RUN addgroup -S -g 10015 opsgenie_alerts_reporter && \
 USER opsgenie_alerts_reporter:opsgenie_alerts_reporter
 
 # Set the entry for the container to run the app.
-ENTRYPOINT ["python", "opsgenie_alerts_reporter.py"]
+ENTRYPOINT ["python", "src/opsgenie_alerts_reporter.py"]
