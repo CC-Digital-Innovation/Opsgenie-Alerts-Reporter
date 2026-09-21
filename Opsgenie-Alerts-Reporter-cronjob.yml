@@ -54,7 +54,7 @@ spec:
             - image: harbor.pscp-css.support/library/opsgenie-alerts-reporter:2.0.9
               imagePullPolicy: IfNotPresent
               name: opsgenie-alerts-reporter
-              command: ['sh', '-c', 'source /vault/secrets/opsgenie && source /vault/secrets/v-opsgenie && source /vault/secrets/email && source /vault/secrets/v && python opsgenie_alerts_reporter.py']
+              command: ['sh', '-c', 'source /vault/secrets/opsgenie && source /vault/secrets/v-opsgenie && source /vault/secrets/email && source /vault/secrets/v && python ./src/opsgenie_alerts_reporter.py']
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:
