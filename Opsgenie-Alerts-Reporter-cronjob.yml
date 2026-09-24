@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: opsgenie-alerts-reporter
-  namespace: default
+  namespace: vitu
 spec:
   jobTemplate:
     spec:
@@ -46,14 +46,25 @@ spec:
             vault.hashicorp.com/ca-cert: /run/secrets/kubernetes.io/serviceaccount/ca.crt
             vault.hashicorp.com/agent-pre-populate-only: 'true'
         spec:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10014
+            runAsGroup: 10015
           containers:
             - image: harbor.pscp-css.support/library/opsgenie-alerts-reporter:2.0.9
-              imagePullPolicy: Always
+              imagePullPolicy: IfNotPresent
               name: opsgenie-alerts-reporter
-              args: ['/bin/bash', '-c', 'source /vault/secrets/opsgenie && source /vault/secrets/v-opsgenie && source /vault/secrets/email && source /vault/secrets/v && python ./src/Opsgenie-Alerts-Reporter.py']
-          imagePullSecrets:
-            - name: gitlab-cr
+              command: ['sh', '-c', 'source /vault/secrets/opsgenie && source /vault/secrets/v-opsgenie && source /vault/secrets/email && source /vault/secrets/v && python ./src/opsgenie_alerts_reporter.py']
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                seccompProfile:
+                  type: RuntimeDefault
           restartPolicy: Never
           serviceAccountName: opsgenie-alerts-reporter
-      backoffLimit: 3
-  schedule: 0 14 * * 0
+      backoffLimit: 2
+  schedule: 0 9 * * 0
+  timeZone: US/Eastern
